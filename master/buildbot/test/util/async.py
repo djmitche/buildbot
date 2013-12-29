@@ -13,6 +13,7 @@
 #
 # Copyright Buildbot Team Members
 
+from twisted.internet import reactor
 from twisted.python import util
 from twisted.python import log
 from twisted.python import failure
@@ -23,7 +24,6 @@ class CallbacksList(list):
     __slots__ = [ 'creator', 'handled' ]
 
     def append(self, what):
-        print id(self), "append"
         self.handled = True
         super(CallbacksList,self).append(what)
 
@@ -43,8 +43,17 @@ def mustHandleDeferred(fn):
         # d.callbacks.append as "handling" the Deferred, and garbage-collection
         # of d.callbacks as the Deferred being garbage-collected.
         d = fn(*args, **kwargs)
+
+        # If the deferred is called already and this Deferred is chained into
+        # another, then the callback-running code will do some fancy stuff to
+        # steal its result without ever adding a callback.  That spoils our
+        # plan, but pausing and later unpausing the Deferred works around this
+        # issue.
+        if d.called:
+            d.pause()
+            reactor.callLater(0, d.unpause)
+
         d.callbacks = CallbacksList(d.callbacks)
-        print d, "->", id(d.callbacks)
         d.callbacks.handled = False
         d.callbacks.creator = traceback.format_stack()[:-1]
         return d

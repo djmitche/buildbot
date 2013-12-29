@@ -17,7 +17,6 @@ from buildbot import util
 from buildbot.test.util import async
 from buildbot.test.util import logging
 from twisted.internet import defer
-from twisted.python import log
 from twisted.trial import unittest
 import gc
 
@@ -80,7 +79,6 @@ class MustHandleDeferred(logging.LoggingMixin, unittest.TestCase):
     def test_chainedImmediate(self):
         d = defer.Deferred()
         d.addCallback(lambda _: self.asyncMethodImmediate())
-        print "x"
         d.callback(None)
         yield d
         gc.collect()
