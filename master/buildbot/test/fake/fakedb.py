@@ -25,6 +25,7 @@ import copy
 from buildbot.db import buildrequests
 from buildbot.util import datetime2epoch
 from buildbot.util import json
+from buildbot.test.util import async
 from twisted.internet import defer
 from twisted.internet import reactor
 
@@ -380,6 +381,7 @@ class FakeChangesComponent(FakeDBComponent):
 
     # component methods
 
+    @async.mustHandleDeferred
     def addChange(self, author=None, files=None, comments=None, is_dir=0,
                   revision=None, when_timestamp=None, branch=None,
                   category=None, revlink='', properties={}, repository='',
@@ -407,11 +409,13 @@ class FakeChangesComponent(FakeDBComponent):
 
         return defer.succeed(changeid)
 
+    @async.mustHandleDeferred
     def getLatestChangeid(self):
         if self.changes:
             return defer.succeed(max(self.changes.iterkeys()))
         return defer.succeed(None)
 
+    @async.mustHandleDeferred
     def getChange(self, changeid):
         try:
             row = self.changes[changeid]
@@ -420,6 +424,7 @@ class FakeChangesComponent(FakeDBComponent):
 
         return defer.succeed(self._chdict(row))
 
+    @async.mustHandleDeferred
     def getChangeUids(self, changeid):
         try:
             ch_uids = self.changes[changeid]['uids']
@@ -427,17 +432,16 @@ class FakeChangesComponent(FakeDBComponent):
             ch_uids = []
         return defer.succeed(ch_uids)
 
+    @async.mustHandleDeferred
     def getRecentChanges(self, count):
         ids = sorted(self.changes.keys())
         chdicts = [self._chdict(self.changes[id]) for id in ids[-count:]]
         return defer.succeed(chdicts)
 
+    @async.mustHandleDeferred
     def getChanges(self):
         chdicts = [self._chdict(v) for v in self.changes.values()]
         return defer.succeed(chdicts)
-
-    def getChangesCount(self):
-        return len(self.changes)
 
     def _chdict(self, row):
         chdict = row.copy()
@@ -502,10 +506,12 @@ class FakeSchedulersComponent(FakeDBComponent):
 
     # component methods
 
+    @async.mustHandleDeferred
     def classifyChanges(self, objectid, classifications):
         self.classifications.setdefault(objectid, {}).update(classifications)
         return defer.succeed(None)
 
+    @async.mustHandleDeferred
     def flushChangeClassifications(self, objectid, less_than=None):
         if less_than is not None:
             classifications = self.classifications.setdefault(objectid, {})
@@ -516,6 +522,7 @@ class FakeSchedulersComponent(FakeDBComponent):
             self.classifications[objectid] = {}
         return defer.succeed(None)
 
+    @async.mustHandleDeferred
     def getChangeClassifications(self, objectid, branch=-1, repository=-1,
                                  project=-1, codebase=-1):
         classifications = self.classifications.setdefault(objectid, {})
@@ -573,6 +580,7 @@ class FakeSourceStampSetsComponent(FakeDBComponent):
             if isinstance(row, SourceStampSet):
                 self.sourcestampsets[row.id] = dict()
 
+    @async.mustHandleDeferred
     def addSourceStampSet(self):
         id = len(self.sourcestampsets) + 100
         while id in self.sourcestampsets:
