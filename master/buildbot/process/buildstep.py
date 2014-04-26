@@ -221,6 +221,26 @@ class BuildStep(object, properties.PropertiesMixin):
         self._step_status.old_setText2(strings)
         return defer.succeed(None)
 
+    def getCurrentSummary(self):
+        return u'running'
+
+    def getResultSummary(self):
+        return {}
+
+    @defer.inlineCallbacks
+    #@debounced
+    def updateSummary(self):
+        assert self.isNewStyle(), "updateSummary is a new-style step method"
+        if self._step_status.isFinished():
+            resultSummary = yield self.getResultSummary()
+            stepResult = resultSummary.get('step', 'finished')
+            self._step_status.setText([stepResult])
+            buildResult = resultSummary.get('build', None)
+            self._step_status.setText2([buildResult] if buildResult else [])
+        else:
+            stepSummary = yield self.getCurrentSummary()
+            self._step_status.setText([stepSummary])
+
     @defer.inlineCallbacks
     def startStep(self, remote):
         self.remote = remote

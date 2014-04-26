@@ -356,6 +356,51 @@ class TestBuildStep(steps.BuildStepMixin, config.ConfigErrorsMixin, unittest.Tes
         yield self.runStep()
         self.assertEqual(len(self.flushLoggedErrors(AssertionError)), 1)
 
+    def setup_summary_test(self):
+        self.patch(NewStyleStep, 'getCurrentSummary',
+                   lambda self: defer.succeed('C'))
+        self.patch(NewStyleStep, 'getResultSummary',
+                   lambda self: defer.succeed({'step': 'CS', 'build': 'CB'}))
+        return NewStyleStep()
+
+    @defer.inlineCallbacks
+    def test_updateSummary_running(self):
+        step = self.setup_summary_test()
+        step._step_status = mock.Mock()
+        step._step_status.isFinished = lambda: False
+        yield step.updateSummary()
+        step._step_status.setText.assert_called_with(['C'])
+        step._step_status.setText2.assert_not_called()
+
+    @defer.inlineCallbacks
+    def test_updateSummary_finished(self):
+        step = self.setup_summary_test()
+        step._step_status = mock.Mock()
+        step._step_status.isFinished = lambda: True
+        yield step.updateSummary()
+        step._step_status.setText.assert_called_with(['CS'])
+        step._step_status.setText2.assert_called_with(['CB'])
+
+    @defer.inlineCallbacks
+    def test_updateSummary_finished_empty_dict(self):
+        step = self.setup_summary_test()
+        step.getResultSummary = lambda: {}
+        step._step_status = mock.Mock()
+        step._step_status.isFinished = lambda: True
+        yield step.updateSummary()
+        step._step_status.setText.assert_called_with(['finished'])
+        step._step_status.setText2.assert_called_with([])
+
+    @defer.inlineCallbacks
+    def test_updateSummary_old_style(self):
+        step = OldStyleStep()
+        try:
+            yield step.updateSummary()
+        except AssertionError:
+            pass
+        except Exception:
+            self.fail("didn't raise")
+
 
 class TestLoggingBuildStep(unittest.TestCase):
 
