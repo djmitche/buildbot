@@ -732,25 +732,53 @@ class RunProcess:
     def finished(self, sig, rc):
         self.elapsedTime = util.now(self._reactor) - self.startTime
         log.msg("command finished with signal %s, exit code %s, elapsedTime: %0.6f" % (sig, rc, self.elapsedTime))
-        for w in self.logFileWatchers:
-            # this will send the final updates
-            w.stop()
-        self._sendBuffers()
+        self._cancelTimers()
+
         if sig is not None:
             rc = -1
-        if self.sendRC:
-            if sig is not None:
-                self.sendStatus(
-                    {'header': "process killed by signal %d\n" % sig})
-            self.sendStatus({'rc': rc})
-        self.sendStatus({'header': "elapsedTime=%0.6f\n" % self.elapsedTime})
-        self._cancelTimers()
-        d = self.deferred
-        self.deferred = None
-        if d:
-            d.callback(rc)
-        else:
-            log.msg("Hey, command %s finished twice" % self)
+
+        d = defer.succeed(None)
+        @d.addCallback
+        def stopWatchers(_):
+            return defer.gatherResults(
+                    [w.stop() for w in self.logFileWatchers],
+                    consumeErrors=True)
+
+        @d.addCallback
+        def sendResultLogs(_):
+            if self.sendRC:
+                if sig is not None:
+                    # TODO: make this return a Deferred
+                    return self.sendStatus(
+                        {'header': "process killed by signal %d\n" % sig})
+        @d.addCallback
+        def sendRC(_):
+            if self.sendRC:
+                return self.sendStatus({'rc': rc})
+
+        @d.addCallback
+        def sendElapsed(_):
+            return self.sendStatus(
+                {'header': "elapsedTime=%0.6f\n" % self.elapsedTime})
+
+        @d.addCallback
+        def sendBuffers(_):
+            # TODO: make this return a Deferred
+            return self._sendBuffers()
+
+        @d.addBoth
+        def fireDeferred(maybeFailure):
+            # note that this will handle any errors in the previous callbacks
+            d = self.deferred
+            self.deferred = None
+            if d:
+                if maybeFailure:
+                    d.errback(maybeFailure)
+                else:
+                    d.callback(rc)
+            else:
+                log.msg("Hey, command %s finished twice" % self)
+
 
     def failed(self, why):
         self._sendBuffers()
