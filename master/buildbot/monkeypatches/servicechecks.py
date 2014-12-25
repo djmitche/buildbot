@@ -13,6 +13,21 @@
 #
 # Copyright Buildbot Team Members
 
+import weakref
+
+from twisted.internet import defer
+
+_services = weakref.WeakValueDictionary()
+def dump(msg):
+    print msg
+    for svc in _services.values():
+        print '', svc, svc._debug_status
+
+def assert_all_stopped():
+    for svc in _services.values():
+        if svc._debug_status != 'stopped':
+            dump("un-stopped services")
+            raise AssertionError()
 
 def patch():
     """
@@ -22,15 +37,50 @@ def patch():
     (used for debugging only)
     """
     from twisted.application.service import Service
-    old_startService = Service.startService
-    old_stopService = Service.stopService
+    old_setServiceParent = Service.setServiceParent
 
-    def startService(self):
-        assert not self.running, "%r already running" % (self,)
-        return old_startService(self)
+    def setServiceParent(self, parent):
+        if id(self) in _services:
+            return old_setServiceParent(self, parent)
+        _services[id(self)] = self
+        self._debug_status = 'stopped'
 
-    def stopService(self):
-        assert self.running, "%r already stopped" % (self,)
-        return old_stopService(self)
-    Service.startService = startService
-    Service.stopService = stopService
+        # patch these methods on the *instance*, so we are at the bottom
+        # of the chain of calls up the inheritance hierarchy
+        old_startService = self.startService
+        def startService():
+            assert self._debug_status == 'stopped', \
+                    "%r already %s" % (self, self._debug_status)
+            self._debug_status = 'starting'
+            d = old_startService()
+            if isinstance(d, defer.Deferred):
+                @d.addCallback
+                def status(x):
+                    self._debug_status = 'running'
+                    return x
+                return d
+            else:
+                self._debug_status = 'running'
+                return d
+        self.startService = startService
+
+        old_stopService = self.stopService
+        def stopService():
+            assert self._debug_status == 'running', \
+                    "%r already %s" % (self, self._debug_status)
+            self._debug_status = 'stopping'
+            d = old_stopService()
+            if isinstance(d, defer.Deferred):
+                @d.addCallback
+                def status(x):
+                    self._debug_status = 'stopped'
+                    return x
+                return d
+            else:
+                self._debug_status = 'stopped'
+                return d
+        self.stopService = stopService
+
+        return old_setServiceParent(self, parent)
+
+    Service.setServiceParent = setServiceParent

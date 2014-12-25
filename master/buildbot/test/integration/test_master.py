@@ -73,6 +73,8 @@ class RunMaster(dirs.DirsMixin, www.RequiresWwwMixin, unittest.TestCase):
         # and shutdown the db threadpool, as is normally done at reactor stop
         m.db.pool.shutdown()
 
+        from buildbot.monkeypatches import servicechecks
+        servicechecks.assert_all_stopped()
         # (trial will verify all reactor-based timers have been cleared, etc.)
 
     # run this test twice, to make sure the first time shut everything down
