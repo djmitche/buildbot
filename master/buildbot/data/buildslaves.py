@@ -92,7 +92,7 @@ class Buildslave(base.ResourceType):
 
     class EntityType(types.Entity):
         buildslaveid = types.Integer()
-        name = types.String()
+        name = types.Identifier(50)
         connected_to = types.List(of=types.Dict(
             masterid=types.Integer()))
         configured_on = types.List(of=types.Dict(

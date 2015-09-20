@@ -391,7 +391,7 @@ dbdict['builderdict'] = DictValidator(
 
 dbdict['buildslavedict'] = DictValidator(
     id=IntValidator(),
-    name=StringValidator(),
+    name=IdentifierValidator(50),
     configured_on=ListValidator(
         DictValidator(
             masterid=IntValidator(),
