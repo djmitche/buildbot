@@ -475,10 +475,7 @@ class Model(base.DBConnectorComponent):
     # tags
     tags = sa.Table('tags', metadata,
                     sa.Column('id', sa.Integer, primary_key=True),
-                    # tag's name
-                    sa.Column('name', sa.Text, nullable=False),
-                    # sha1 of name; used for a unique index
-                    sa.Column('name_hash', sa.String(40), nullable=False),
+                    sa.Column('name', sa.String(100), nullable=False),
                     )
 
     # a many-to-may relationship between builders and tags
@@ -600,7 +597,7 @@ class Model(base.DBConnectorComponent):
     sa.Index('builder_masters_identity',
              builder_masters.c.builderid, builder_masters.c.masterid,
              unique=True)
-    sa.Index('tag_name_hash', tags.c.name_hash, unique=True)
+    sa.Index('tag_name', tags.c.name, unique=True)
     sa.Index('builders_tags_builderid',
              builders_tags.c.builderid)
     sa.Index('builders_tags_unique',

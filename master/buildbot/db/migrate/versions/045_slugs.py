@@ -29,6 +29,9 @@ def upgrade(migrate_engine):
     changesources = sa.Table('changesources', metadata, autoload=True)
     changesources.drop()
 
+    tags = sa.Table('tags', metadata, autoload=True)
+    tags.drop()
+
     # regenerate metadata
     metadata = sa.MetaData()
     metadata.bind = migrate_engine
@@ -56,11 +59,21 @@ def upgrade(migrate_engine):
     idx.create(migrate_engine)
 
     changesources = sa.Table(
-            'changesources', metadata,
-                             sa.Column("id", sa.Integer, primary_key=True),
-                             sa.Column('name', sa.Text, nullable=False),
-                             )
+        'changesources', metadata,
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column('name', sa.Text, nullable=False),
+    )
     changesources.create()
 
     idx = sa.Index('changesource_name', changesources.c.name, unique=True)
+    idx.create()
+
+    tags = sa.Table(
+        'tags', metadata,
+        sa.Column('id', sa.Integer, primary_key=True),
+        sa.Column('name', sa.String(100), nullable=False),
+    )
+    tags.create()
+
+    idx = sa.Index('tag_name', tags.c.name, unique=True)
     idx.create()

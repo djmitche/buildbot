@@ -844,16 +844,21 @@ class BuilderConfig(util_config.ConfiguredMixin):
         if category:
             warnDeprecated("0.9", "builder '%s': builder categories are "
                                   "deprecated and should be replaced with "
-                                  "'tags=[cat]'" % (name,))
+                                  "'tags=[tag]'" % (name,))
             if not isinstance(category, str):
                 error("builder '%s': category must be a string" % (name,))
             tags = [category]
         if tags:
             if not isinstance(tags, list):
                 error("builder '%s': tags must be a list" % (name,))
-            bad_tags = any((tag for tag in tags if not isinstance(tag, str)))
-            if bad_tags:
-                error("builder '%s': tags list contains something that is not a string" % (name,))
+            try:
+                tags = [util.ascii2unicode(t) for t in tags]
+            except Exception:
+                error("builder '%s': tags list contains something that is not "
+                      "unicode or an ascii string" % (name,))
+            if any(len(t) > 100 for t in tags):
+                error("builder '%s': tags list contains a tag longer than 100 "
+                      "characters" % (name,))
         else:
             tags = []
 

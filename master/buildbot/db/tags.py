@@ -19,6 +19,7 @@ from buildbot.db import base
 class TagsConnectorComponent(base.DBConnectorComponent):
 
     def findTagId(self, name):
+        assert len(name) <= 100  # this should get a nice error message earlier
         tbl = self.db.model.tags
         return self.findSomethingId(
             tbl=tbl,

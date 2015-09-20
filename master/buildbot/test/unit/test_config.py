@@ -1229,8 +1229,14 @@ class BuilderConfig(ConfigErrorsMixin, unittest.TestCase):
 
     def test_tags_must_be_list_of_str(self):
         self.assertRaisesConfigError(
-            "tags list contains something that is not a string",
+            "tags list contains something that is not unicode or an ascii string",
             lambda: config.BuilderConfig(tags=['abc', 13],
+                                         name='a', slavenames=['a'], factory=self.factory))
+
+    def test_tags_must_be_short(self):
+        self.assertRaisesConfigError(
+            "tags list contains a tag longer than 100 characters",
+            lambda: config.BuilderConfig(tags=['b'*101],
                                          name='a', slavenames=['a'], factory=self.factory))
 
     def test_tags_no_categories_too(self):
