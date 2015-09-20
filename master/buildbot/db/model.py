@@ -425,11 +425,7 @@ class Model(base.DBConnectorComponent):
     # later.
     schedulers = sa.Table('schedulers', metadata,
                           sa.Column("id", sa.Integer, primary_key=True),
-
-                          # name for this scheduler, as given in the configuration, plus a hash
-                          # of that name used for a unique index
-                          sa.Column('name', sa.Text, nullable=False),
-                          sa.Column('name_hash', sa.String(40), nullable=False),
+                          sa.Column('name', sa.String(50), nullable=False),
                           )
 
     # This links schedulers to the master where they are running.  A scheduler
@@ -597,7 +593,7 @@ class Model(base.DBConnectorComponent):
     sa.Index('change_properties_changeid', change_properties.c.changeid)
     sa.Index('changes_sourcestampid', changes.c.sourcestampid)
     sa.Index('changesource_name_hash', changesources.c.name_hash, unique=True)
-    sa.Index('scheduler_name_hash', schedulers.c.name_hash, unique=True)
+    sa.Index('scheduler_name', schedulers.c.name, unique=True)
     sa.Index('scheduler_changes_schedulerid', scheduler_changes.c.schedulerid)
     sa.Index('scheduler_changes_changeid', scheduler_changes.c.changeid)
     sa.Index('scheduler_changes_unique', scheduler_changes.c.schedulerid,

@@ -136,14 +136,14 @@ class Tests(interfaces.InterfaceTests):
 
     @defer.inlineCallbacks
     def test_findSchedulerId_new(self):
-        id = yield self.db.schedulers.findSchedulerId('schname')
+        id = yield self.db.schedulers.findSchedulerId(u'schname')
         sch = yield self.db.schedulers.getScheduler(id)
-        self.assertEqual(sch['name'], 'schname')
+        self.assertEqual(sch['name'], u'schname')
 
     @defer.inlineCallbacks
     def test_findSchedulerId_existing(self):
-        id = yield self.db.schedulers.findSchedulerId('schname')
-        id2 = yield self.db.schedulers.findSchedulerId('schname')
+        id = yield self.db.schedulers.findSchedulerId(u'schname')
+        id2 = yield self.db.schedulers.findSchedulerId(u'schname')
         self.assertEqual(id, id2)
 
     def test_signature_setSchedulerMaster(self):

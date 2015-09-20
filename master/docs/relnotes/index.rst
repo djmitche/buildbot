@@ -25,6 +25,8 @@ Features
 * Builder names can now be arbitrary Unicode or ASCII strings, but if the name is not an identifier then a suitable ``slug`` must also be provided.
   See :ref:`Builder-Configuration` for details.
 
+* Scheduler names must be an identifier of no more than 50 characters; see :ref:`Identifier <type-identifier>`.
+
 Fixes
 ~~~~~
 

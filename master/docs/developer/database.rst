@@ -1013,7 +1013,7 @@ schedulers
     Schedulers are represented by dictionaries with the following keys:
 
         * ``id`` - scheduler's ID
-        * ``name`` - scheduler's name
+        * ``name`` - scheduler's name (50-character :ref:`Identifier <type-identifier>`)
         * ``masterid`` - ID of the master currently running this scheduler, or None if it is inactive
 
     Note that this class is conservative in determining what schedulers are inactive: a scheduler linked to an inactive master is still considered active.
@@ -1063,6 +1063,7 @@ schedulers
     .. py:method:: findSchedulerId(name)
 
         :param name: scheduler name
+        :type name: 50-character :ref:`Identifier <type-identifier>`
         :returns: scheduler ID via Deferred
 
         Return the scheduler ID for the scheduler with this name.

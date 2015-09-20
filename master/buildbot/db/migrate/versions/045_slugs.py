@@ -20,8 +20,11 @@ def upgrade(migrate_engine):
     metadata = sa.MetaData()
     metadata.bind = migrate_engine
 
-    builders_table = sa.Table('builders', metadata, autoload=True)
-    builders_table.drop()
+    builders = sa.Table('builders', metadata, autoload=True)
+    builders.drop()
+
+    schedulers = sa.Table('schedulers', metadata, autoload=True)
+    schedulers.drop()
 
     # regenerate metadata
     metadata = sa.MetaData()
@@ -37,4 +40,14 @@ def upgrade(migrate_engine):
     builders.create()
 
     idx = sa.Index('builder_slug', builders.c.slug, unique=True)
+    idx.create(migrate_engine)
+
+    schedulers = sa.Table(
+        'schedulers', metadata,
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column('name', sa.String(50), nullable=False),
+    )
+    schedulers.create()
+
+    idx = sa.Index('scheduler_name', schedulers.c.name, unique=True)
     idx.create(migrate_engine)

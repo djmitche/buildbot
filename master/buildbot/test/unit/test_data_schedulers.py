@@ -35,11 +35,11 @@ class SchedulerEndpoint(endpoint.EndpointMixin, unittest.TestCase):
         self.db.insertTestData([
             fakedb.Master(id=22, active=0),
             fakedb.Master(id=33, active=1),
-            fakedb.Scheduler(id=13, name='some:scheduler'),
+            fakedb.Scheduler(id=13, name='some-scheduler'),
             fakedb.SchedulerMaster(schedulerid=13, masterid=None),
-            fakedb.Scheduler(id=14, name='other:scheduler'),
+            fakedb.Scheduler(id=14, name='other-scheduler'),
             fakedb.SchedulerMaster(schedulerid=14, masterid=22),
-            fakedb.Scheduler(id=15, name='another:scheduler'),
+            fakedb.Scheduler(id=15, name='another-scheduler'),
             fakedb.SchedulerMaster(schedulerid=15, masterid=33),
         ])
 
@@ -52,7 +52,7 @@ class SchedulerEndpoint(endpoint.EndpointMixin, unittest.TestCase):
         @d.addCallback
         def check(scheduler):
             self.validateData(scheduler)
-            self.assertEqual(scheduler['name'], 'other:scheduler')
+            self.assertEqual(scheduler['name'], 'other-scheduler')
         return d
 
     def test_get_no_master(self):
@@ -70,7 +70,7 @@ class SchedulerEndpoint(endpoint.EndpointMixin, unittest.TestCase):
         @d.addCallback
         def check(scheduler):
             self.validateData(scheduler)
-            self.assertEqual(scheduler['name'], 'other:scheduler')
+            self.assertEqual(scheduler['name'], 'other-scheduler')
         return d
 
     def test_get_masterid_no_match(self):
@@ -108,13 +108,13 @@ class SchedulersEndpoint(endpoint.EndpointMixin, unittest.TestCase):
         self.db.insertTestData([
             fakedb.Master(id=22, active=0),
             fakedb.Master(id=33, active=1),
-            fakedb.Scheduler(id=13, name='some:scheduler'),
+            fakedb.Scheduler(id=13, name='some-scheduler'),
             fakedb.SchedulerMaster(schedulerid=13, masterid=None),
-            fakedb.Scheduler(id=14, name='other:scheduler'),
+            fakedb.Scheduler(id=14, name='other-scheduler'),
             fakedb.SchedulerMaster(schedulerid=14, masterid=22),
-            fakedb.Scheduler(id=15, name='another:scheduler'),
+            fakedb.Scheduler(id=15, name='another-scheduler'),
             fakedb.SchedulerMaster(schedulerid=15, masterid=33),
-            fakedb.Scheduler(id=16, name='wholenother:scheduler'),
+            fakedb.Scheduler(id=16, name='wholenother-scheduler'),
             fakedb.SchedulerMaster(schedulerid=16, masterid=33),
         ])
 
@@ -217,9 +217,9 @@ class Scheduler(interfaces.InterfaceTests, unittest.TestCase):
     def test__masterDeactivated(self):
         yield self.master.db.insertTestData([
             fakedb.Master(id=22, active=0),
-            fakedb.Scheduler(id=13, name='some:scheduler'),
+            fakedb.Scheduler(id=13, name='some-scheduler'),
             fakedb.SchedulerMaster(schedulerid=13, masterid=22),
-            fakedb.Scheduler(id=14, name='other:scheduler'),
+            fakedb.Scheduler(id=14, name='other-scheduler'),
             fakedb.SchedulerMaster(schedulerid=14, masterid=22),
         ])
         yield self.rtype._masterDeactivated(22)

@@ -523,7 +523,7 @@ dbdict['changesourcedict'] = DictValidator(
 
 dbdict['schedulerdict'] = DictValidator(
     id=IntValidator(),
-    name=StringValidator(),
+    name=IdentifierValidator(50),
     masterid=NoneOk(IntValidator()),
 )
 

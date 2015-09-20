@@ -4,7 +4,8 @@ Scheduler
 .. bb:rtype:: scheduler
 
     :attr integer schedulerid: the ID of this scheduler
-    :attr string name: name of this scheduler
+    :attr name: name of this scheduler
+    :type name: 50-character :ref:`Identifier <type-identifier>`
     :attr master master: the master on which this scheduler is running, or None if it is inactive
 
     A scheduler initiates builds, often in response to changes from change sources.
@@ -43,7 +44,8 @@ All update methods are available as attributes of ``master.data.updates``.
 
     .. py:method:: findSchedulerId(name)
 
-        :param string name: scheduler name
+        :param name: scheduler name
+        :type name: 50-character :ref:`Identifier <type-identifier>`
         :returns: scheduler ID via Deferred
 
         Get the ID for the given scheduler name, inventing one if necessary.

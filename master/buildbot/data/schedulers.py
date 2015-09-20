@@ -83,7 +83,7 @@ class Scheduler(base.ResourceType):
 
     class EntityType(types.Entity):
         schedulerid = types.Integer()
-        name = types.String()
+        name = types.Identifier(50)
         master = types.NoneOk(masters.Master.entityType)
     entityType = EntityType(name)
 

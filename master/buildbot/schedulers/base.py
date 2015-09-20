@@ -21,6 +21,7 @@ from buildbot.changes import changes
 from buildbot.process.properties import Properties
 from buildbot.util.service import ClusteredBuildbotService
 from buildbot.util.state import StateMixin
+from buildbot.util import identifiers
 from twisted.internet import defer
 from twisted.python import failure
 from twisted.python import log
@@ -38,6 +39,9 @@ class BaseScheduler(ClusteredBuildbotService, StateMixin):
 
     def __init__(self, name, builderNames, properties=None,
                  codebases=DEFAULT_CODEBASES):
+        if not identifiers.isIdentifier(50, name):
+            config.error("Scheduler name {0!r} is not a 50-character "
+                         "identifier".format(name))
         super(BaseScheduler, self).__init__(name=name)
 
         ok = True

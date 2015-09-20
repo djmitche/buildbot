@@ -19,6 +19,7 @@ import sqlalchemy.exc
 
 from buildbot.db import NULL
 from buildbot.db import base
+from buildbot.util import identifiers
 from twisted.internet import defer
 
 
@@ -105,15 +106,12 @@ class SchedulersConnectorComponent(base.DBConnectorComponent):
         return self.db.pool.do(thd)
 
     def findSchedulerId(self, name):
+        assert identifiers.isIdentifier(50, name)
         tbl = self.db.model.schedulers
-        name_hash = self.hashColumns(name)
         return self.findSomethingId(
             tbl=tbl,
-            whereclause=(tbl.c.name_hash == name_hash),
-            insert_values=dict(
-                name=name,
-                name_hash=name_hash,
-            ))
+            whereclause=(tbl.c.name == name),
+            insert_values=dict(name=name))
 
     def setSchedulerMaster(self, schedulerid, masterid):
         def thd(conn):

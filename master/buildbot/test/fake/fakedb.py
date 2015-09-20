@@ -976,6 +976,7 @@ class FakeSchedulersComponent(FakeDBComponent):
         return defer.succeed(classifications)
 
     def findSchedulerId(self, name):
+        assert identifiers.isIdentifier(50, name)
         for sch_id, sch_name in iteritems(self.schedulers):
             if sch_name == name:
                 return defer.succeed(sch_id)

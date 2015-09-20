@@ -687,15 +687,15 @@ class MasterConfig_loaders(ConfigErrorsMixin, unittest.TestCase):
         self.assertConfigError(self.errors, "must be a list of")
 
     def test_load_schedulers_dupe(self):
-        sch1 = FakeScheduler(name='sch')
-        sch2 = FakeScheduler(name='sch')
+        sch1 = FakeScheduler(name=u'sch')
+        sch2 = FakeScheduler(name=u'sch')
         self.cfg.load_schedulers(self.filename,
                                  dict(schedulers=[sch1, sch2]))
         self.assertConfigError(self.errors,
                                "scheduler name 'sch' used multiple times")
 
     def test_load_schedulers(self):
-        sch = schedulers_base.BaseScheduler('sch', [""])
+        sch = schedulers_base.BaseScheduler(u'sch', [""])
         self.cfg.load_schedulers(self.filename,
                                  dict(schedulers=[sch]))
         self.assertResults(schedulers=dict(sch=sch))
@@ -945,7 +945,7 @@ class MasterConfig_checkers(ConfigErrorsMixin, unittest.TestCase):
     def setup_basic_attrs(self):
         # set up a basic config for checking; this will be modified below
         sch = mock.Mock()
-        sch.name = 'sch'
+        sch.name = u'sch'
         sch.listBuilderNames = lambda: ['b1', 'b2']
 
         b1 = mock.Mock()
