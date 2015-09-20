@@ -25,7 +25,8 @@ However there is a much simpler way to use it, so in the configuration file, its
 ``BuilderConfig`` takes the following keyword arguments:
 
 ``name``
-    This specifies the Builder's name, which is used in status reports.
+    This specifies the Builder's name, which is used in reports and user interfaces.
+    See also ``slug`` below.
 
 ``slavename``
 
@@ -40,6 +41,11 @@ However there is a much simpler way to use it, so in the configuration file, its
     Full details appear in their own section, :ref:`Build-Factories`.
 
 Other optional keys may be set on each ``BuilderConfig``:
+
+``slug``
+    A 20-character :ref:`Identifier <type-identifier>` for this builder, defaulting to the builder's name if it is a suitable identifier.
+    A builder's slug permanently identifies it, allowing the name to change during reconfiguration.
+    Slugs also appear in URLs, message routing keys, and other venues that do not allow arbitrary strings.
 
 ``builddir``
     Specifies the name of a subdirectory of the master's basedir in which everything related to this builder will be stored.

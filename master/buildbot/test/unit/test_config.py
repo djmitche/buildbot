@@ -1266,13 +1266,14 @@ class BuilderConfig(ConfigErrorsMixin, unittest.TestCase):
 
     def test_defaults(self):
         cfg = config.BuilderConfig(
-            name='a b c', slavename='a', factory=self.factory)
+            name='a-b-c', slavename='a', factory=self.factory)
         self.assertIdentical(cfg.factory, self.factory)
         self.assertAttributes(cfg,
-                              name='a b c',
+                              name='a-b-c',
+                              slug='a-b-c',
                               slavenames=['a'],
-                              builddir='a_b_c',
-                              slavebuilddir='a_b_c',
+                              builddir='a-b-c',
+                              slavebuilddir='a-b-c',
                               tags=[],
                               nextSlave=None,
                               locks=[],
@@ -1283,7 +1284,7 @@ class BuilderConfig(ConfigErrorsMixin, unittest.TestCase):
 
     def test_unicode_name(self):
         cfg = config.BuilderConfig(
-            name=u'a \N{SNOWMAN} c', slavename='a', factory=self.factory)
+            name=u'a \N{SNOWMAN} c', slug=u'snowman', slavename='a', factory=self.factory)
         self.assertIdentical(cfg.factory, self.factory)
         self.assertAttributes(cfg,
                               name=u'a \N{SNOWMAN} c')
@@ -1325,6 +1326,7 @@ class BuilderConfig(ConfigErrorsMixin, unittest.TestCase):
                                                'locks': ['l'],
                                                'collapseRequests': 'cr',
                                                'name': 'b',
+                                               'slug': u'b',
                                                'nextBuild': nb,
                                                'nextSlave': ns,
                                                'properties': {'y': 20},
@@ -1338,7 +1340,7 @@ class BuilderConfig(ConfigErrorsMixin, unittest.TestCase):
                                        factory=self.factory, slavename='s1')
             self.assertEqual(cfg.getConfigDict(), {'builddir': 'b',
                                                    'collapseRequests': cr,
-                                                   'name': 'b',
+                                                   'name': 'b', 'slug': u'b',
                                                    'slavebuilddir': 'b',
                                                    'factory': self.factory,
                                                    'slavenames': ['s1'],

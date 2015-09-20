@@ -762,7 +762,7 @@ class MasterConfig(util.ComparableMixin):
 
 class BuilderConfig(util_config.ConfiguredMixin):
 
-    def __init__(self, name=None, slavename=None, slavenames=None,
+    def __init__(self, name=None, slug=None, slavename=None, slavenames=None,
                  builddir=None, slavebuilddir=None, factory=None,
                  tags=None, category=None,
                  nextSlave=None, nextBuild=None, locks=None, env=None,
@@ -775,10 +775,24 @@ class BuilderConfig(util_config.ConfiguredMixin):
             name = '<unknown>'
         elif name[0] == '_':
             error("builder names must not start with an underscore: '%s'" % name)
+
         try:
             self.name = util.ascii2unicode(name)
         except UnicodeDecodeError:
             error("builder names must be unicode or ASCII")
+
+        if slug:
+            if not util_identifiers.isIdentifier(20, slug):
+                error("Builder slug {0!r} is not a valid 20-character "
+                      "identifier".format(slug))
+            self.slug = slug
+        else:
+            if util_identifiers.isIdentifier(20, self.name):
+                self.slug = self.name
+            else:
+                error("Builder name {0!r} is not a valid 20-character "
+                      "identifier; try specifying a valid identifier as the "
+                      "builder's slug".format(self.name))
 
         # factory is required
         if factory is None:
@@ -810,7 +824,11 @@ class BuilderConfig(util_config.ConfiguredMixin):
 
         # builddir defaults to name
         if builddir is None:
-            builddir = safeTranslate(name)
+            if slug:
+                # slugs are safe
+                builddir = slug
+            else:
+                builddir = safeTranslate(name)
         self.builddir = builddir
 
         # slavebuilddir defaults to builddir
@@ -870,6 +888,7 @@ class BuilderConfig(util_config.ConfiguredMixin):
         # constructor!
         rv = {
             'name': self.name,
+            'slug': self.slug,
             'slavenames': self.slavenames,
             'factory': self.factory,
             'builddir': self.builddir,

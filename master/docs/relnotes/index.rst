@@ -22,6 +22,9 @@ Features
 
 * Builders ui page has improved tag filtering capabilities
 
+* Builder names can now be arbitrary Unicode or ASCII strings, but if the name is not an identifier then a suitable ``slug`` must also be provided.
+  See :ref:`Builder-Configuration` for details.
+
 Fixes
 ~~~~~
 
