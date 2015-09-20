@@ -228,11 +228,11 @@ class FakeUpdates(service.AsyncService):
     def rebuildBuildrequest(self, buildrequest):
         return defer.succeed(None)
 
-    def updateBuilderList(self, masterid, builderNames):
+    def updateBuilderList(self, masterid, builderSlugs):
         self.testcase.assertEqual(masterid, self.master.masterid)
-        for n in builderNames:
+        for n in builderSlugs:
             self.testcase.assertIsInstance(n, unicode)
-        self.builderNames = builderNames
+        self.builderSlugs = builderSlugs
         return defer.succeed(None)
 
     def updateBuilderInfo(self, builderid, description, tags):
@@ -255,10 +255,10 @@ class FakeUpdates(service.AsyncService):
             self.changesourceIds[name] = max([0] + list(itervalues(self.changesourceIds))) + 1
         return defer.succeed(self.changesourceIds[name])
 
-    def findBuilderId(self, name):
-        validation.verifyType(self.testcase, 'builder name', name,
-                              validation.StringValidator())
-        return self.master.db.builders.findBuilderId(name)
+    def findBuilderId(self, slug):
+        validation.verifyType(self.testcase, 'builder slug', slug,
+                              validation.IdentifierValidator(20))
+        return self.master.db.builders.findBuilderId(slug)
 
     def trySetSchedulerMaster(self, schedulerid, masterid):
         currentMasterid = self.schedulerMasters.get(schedulerid)

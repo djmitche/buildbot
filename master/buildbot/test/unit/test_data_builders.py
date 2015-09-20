@@ -146,7 +146,7 @@ class Builder(interfaces.InterfaceTests, unittest.TestCase):
         @self.assertArgSpecMatches(
             self.master.data.updates.findBuilderId,  # fake
             self.rtype.findBuilderId)  # real
-        def findBuilderId(self, name):
+        def findBuilderId(self, slug):
             pass
 
     def test_findBuilderId(self):
@@ -164,7 +164,7 @@ class Builder(interfaces.InterfaceTests, unittest.TestCase):
         @self.assertArgSpecMatches(
             self.master.data.updates.updateBuilderList,  # fake
             self.rtype.updateBuilderList)  # real
-        def updateBuilderList(self, masterid, builderNames):
+        def updateBuilderList(self, masterid, builderSlugs):
             pass
 
     @defer.inlineCallbacks
@@ -177,7 +177,9 @@ class Builder(interfaces.InterfaceTests, unittest.TestCase):
                                   name='somebuilder', description=None, tags=[]),
                          ]))
         self.master.mq.assertProductions([(('builders', '1', 'started'),
-                                           {'builderid': 1, 'masterid': 13, 'name': u'somebuilder'})])
+                                           {'builderid': 1, 'masterid': 13,
+                                            'slug': u'somebuilder',
+                                            'name': u'somebuilder'})])
 
         # add another
         yield self.rtype.updateBuilderList(13, [u'somebuilder', u'another'])
@@ -189,7 +191,9 @@ class Builder(interfaces.InterfaceTests, unittest.TestCase):
                                   name='another', description=None, tags=[]),
                          ]))
         self.master.mq.assertProductions([(('builders', '2', 'started'),
-                                           {'builderid': 2, 'masterid': 13, 'name': u'another'})])
+                                           {'builderid': 2, 'masterid': 13,
+                                            'slug': u'another',
+                                            'name': u'another'})])
 
         # add one for another master
         yield self.rtype.updateBuilderList(14, [u'another'])
@@ -201,7 +205,9 @@ class Builder(interfaces.InterfaceTests, unittest.TestCase):
                                   name='another', description=None, tags=[]),
                          ]))
         self.master.mq.assertProductions([(('builders', '2', 'started'),
-                                           {'builderid': 2, 'masterid': 14, 'name': u'another'})])
+                                           {'builderid': 2, 'masterid': 14,
+                                            'slug': u'another',
+                                            'name': u'another'})])
 
         # remove both for the first master
         yield self.rtype.updateBuilderList(13, [])
@@ -214,9 +220,11 @@ class Builder(interfaces.InterfaceTests, unittest.TestCase):
                          ]))
         self.master.mq.assertProductions([
             (('builders', '1', 'stopped'),
-             {'builderid': 1, 'masterid': 13, 'name': u'somebuilder'}),
+             {'builderid': 1, 'masterid': 13,
+              'slug': u'somebuilder', 'name': u'somebuilder'}),
             (('builders', '2', 'stopped'),
-             {'builderid': 2, 'masterid': 13, 'name': u'another'}),
+             {'builderid': 2, 'masterid': 13,
+              'slug': u'another', 'name': u'another'}),
         ])
 
     @defer.inlineCallbacks

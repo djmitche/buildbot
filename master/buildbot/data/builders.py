@@ -40,6 +40,7 @@ class BuilderEndpoint(base.Endpoint):
         defer.returnValue(
             dict(builderid=builderid,
                  name=bdict['name'],
+                 slug=bdict['slug'],
                  description=bdict['description'],
                  tags=bdict['tags']))
 
@@ -60,6 +61,7 @@ class BuildersEndpoint(base.Endpoint):
         defer.returnValue([
             dict(builderid=bd['id'],
                  name=bd['name'],
+                 slug=bd['slug'],
                  description=bd['description'],
                  tags=bd['tags'])
             for bd in bdicts])
@@ -75,6 +77,7 @@ class Builder(base.ResourceType):
     class EntityType(types.Entity):
         builderid = types.Integer()
         name = types.String()
+        slug = types.Identifier(20)
         description = types.NoneOk(types.String())
         tags = types.List(of=types.String())
     entityType = EntityType(name)
@@ -83,41 +86,44 @@ class Builder(base.ResourceType):
         base.ResourceType.__init__(self, master)
 
     @base.updateMethod
-    def findBuilderId(self, name):
-        return self.master.db.builders.findBuilderId(name)
+    def findBuilderId(self, slug):
+        return self.master.db.builders.findBuilderId(slug)
 
     @base.updateMethod
-    def updateBuilderInfo(self, builderid, description, tags):
-        return self.master.db.builders.updateBuilderInfo(builderid, description, tags)
+    def updateBuilderInfo(self, builderid, name, description, tags):
+        return self.master.db.builders.updateBuilderInfo(
+            builderid, name, description, tags)
 
     @base.updateMethod
     @defer.inlineCallbacks
-    def updateBuilderList(self, masterid, builderNames):
+    def updateBuilderList(self, masterid, builderSlugs):
         # get the "current" list of builders for this master, so we know what
         # changes to make.  Race conditions here aren't a great worry, as this
         # is the only master inserting or deleting these records.
         builders = yield self.master.db.builders.getBuilders(masterid=masterid)
 
         # figure out what to remove and remove it
-        builderNames_set = set(builderNames)
+        builderSlugs = set(builderSlugs)
         for bldr in builders:
-            if bldr['name'] not in builderNames_set:
+            if bldr['slug'] not in builderSlugs:
                 builderid = bldr['id']
                 yield self.master.db.builders.removeBuilderMaster(
                     masterid=masterid, builderid=builderid)
                 self.master.mq.produce(('builders', str(builderid), 'stopped'),
                                        dict(builderid=builderid, masterid=masterid,
-                                            name=bldr['name']))
+                                            name=bldr['name'], slug=bldr['slug']))
             else:
-                builderNames_set.remove(bldr['name'])
+                builderSlugs.remove(bldr['slug'])
 
-        # now whatever's left in builderNames_set is new
-        for name in builderNames_set:
-            builderid = yield self.master.db.builders.findBuilderId(name)
+        # now whatever's left in builderSlugs is new
+        for slug in builderSlugs:
+            builderid = yield self.master.db.builders.findBuilderId(slug)
             yield self.master.db.builders.addBuilderMaster(
                 masterid=masterid, builderid=builderid)
+            bldr = yield self.master.db.builders.getBuilder(builderid)
             self.master.mq.produce(('builders', str(builderid), 'started'),
-                                   dict(builderid=builderid, masterid=masterid, name=name))
+                                   dict(builderid=builderid, masterid=masterid,
+                                        slug=slug, name=bldr['name']))
 
     @defer.inlineCallbacks
     def _masterDeactivated(self, masterid):
