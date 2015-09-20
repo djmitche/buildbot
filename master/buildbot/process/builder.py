@@ -23,7 +23,6 @@ from buildbot.process import slavebuilder
 from buildbot.process.build import Build
 from buildbot.process.slavebuilder import BUILDING
 from buildbot.status.builder import RETRY
-from buildbot.util import ascii2unicode
 from buildbot.util import epoch2datetime
 from buildbot.util import service as util_service
 from twisted.application import internet
@@ -50,9 +49,10 @@ class Builder(util_service.ReconfigurableServiceMixin,
     # reconfigure builders before slaves
     reconfig_priority = 196
 
-    def __init__(self, name, _addServices=True):
+    def __init__(self, slug, _addServices=True):
         service.MultiService.__init__(self)
-        self.name = name
+        self.slug = slug
+        self.name = None
 
         # this is filled on demand by getBuilderId; don't access it directly
         self._builderid = None
@@ -90,11 +90,13 @@ class Builder(util_service.ReconfigurableServiceMixin,
     @defer.inlineCallbacks
     def reconfigServiceWithBuildbotConfig(self, new_config):
         # find this builder in the config
+        found_config = False
         for builder_config in new_config.builders:
-            if builder_config.name == self.name:
+            if builder_config.slug == self.slug:
                 found_config = True
                 break
-        assert found_config, "no config found for builder '%s'" % self.name
+        assert found_config, \
+            "no config found for builder with slug {0!r}".format(self.slug)
 
         # set up a builder status object on the first reconfig
         if not self.builder_status:
@@ -106,12 +108,16 @@ class Builder(util_service.ReconfigurableServiceMixin,
 
         self.config = builder_config
 
+        # update the name; note that self.slug does *not* change
+        self.name = builder_config.name
+
         # allocate  builderid now, so that the builder is visible in the web
         # UI; without this, the bulider wouldn't appear until it preformed a
         # build.
         builderid = yield self.getBuilderId()
 
         self.master.data.updates.updateBuilderInfo(builderid,
+                                                   builder_config.name,
                                                    builder_config.description,
                                                    builder_config.tags)
 
@@ -127,7 +133,7 @@ class Builder(util_service.ReconfigurableServiceMixin,
                        if s.slave.slavename in new_slavenames]
 
     def __repr__(self):
-        return "<Builder '%r' at %d>" % (self.name, id(self))
+        return "<Builder '%r' at %d>" % (self.slug, id(self))
 
     def getBuilderId(self):
         # since findBuilderId is idempotent, there's no reason to add
@@ -136,8 +142,7 @@ class Builder(util_service.ReconfigurableServiceMixin,
             return defer.succeed(self._builderid)
         # buildbot.config should ensure this is already unicode, but it doesn't
         # hurt to check again
-        name = ascii2unicode(self.name)
-        d = self.master.data.updates.findBuilderId(name)
+        d = self.master.data.updates.findBuilderId(self.slug)
 
         @d.addCallback
         def keep(builderid):
@@ -195,7 +200,7 @@ class Builder(util_service.ReconfigurableServiceMixin,
             self.builder_status.addPointEvent(
                 ['added', 'latent', slave.slavename])
             self.slaves.append(sb)
-            self.botmaster.maybeStartBuildsForBuilder(self.name)
+            self.botmaster.maybeStartBuildsForBuilder(self.slug)
 
     def attached(self, slave, commands):
         """This is invoked by the BuildSlave when the self.slavename bot
@@ -290,7 +295,8 @@ class Builder(util_service.ReconfigurableServiceMixin,
             else:
                 self.builder_status.setBigState("idle")
         except Exception:
-            log.err(None, "while trying to update status of builder '%s'" % (self.name,))
+            log.err(
+                None, "while trying to update status of builder '%s'" % (self.name,))
 
     def getAvailableSlaves(self):
         return [sb for sb in self.slaves if sb.isAvailable()]
@@ -317,7 +323,8 @@ class Builder(util_service.ReconfigurableServiceMixin,
                     fn = cleanups.pop()
                     fn()
             except Exception:
-                log.err(failure.Failure(), "while running %r" % (run_cleanups,))
+                log.err(failure.Failure(), "while running %r" %
+                        (run_cleanups,))
 
         # the last cleanup we want to perform is to update the big
         # status based on any other cleanup
@@ -459,7 +466,8 @@ class Builder(util_service.ReconfigurableServiceMixin,
             complete_at = epoch2datetime(complete_at_epoch)
             brids = [br.id for br in build.requests]
 
-            d = self.master.data.updates.completeBuildRequests(brids, results, complete_at=complete_at)
+            d = self.master.data.updates.completeBuildRequests(
+                brids, results, complete_at=complete_at)
             # nothing in particular to do with this deferred, so just log it if
             # it fails..
             d.addErrback(log.err, 'while marking build requests as completed')

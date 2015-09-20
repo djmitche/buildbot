@@ -44,7 +44,7 @@ class BuilderMixin(object):
                            slavebuilddir="sbdir", factory=self.factory)
         config_args.update(config_kwargs)
         self.builder_config = config.BuilderConfig(**config_args)
-        self.bldr = builder.Builder(self.builder_config.name, _addServices=False)
+        self.bldr = builder.Builder(self.builder_config.slug, _addServices=False)
         self.bldr.master = self.master
         self.bldr.botmaster = self.master.botmaster
 
@@ -387,10 +387,9 @@ class TestGetOldestRequestTime(BuilderMixin, unittest.TestCase):
     @defer.inlineCallbacks
     def test_gort_bldr_name_not_identifier(self):
         # this is a regression test for #2940
-        yield self.makeBuilder(name='foo@bar')
+        yield self.makeBuilder(name='foo@bar', slug=u'foo_bar')
         rqtime = yield self.bldr.getOldestRequestTime()
         self.assertEqual(rqtime, epoch2datetime(2800))
-    test_gort_bldr_name_not_identifier.skip = "WIP"
 
     @defer.inlineCallbacks
     def test_gort_all_claimed(self):

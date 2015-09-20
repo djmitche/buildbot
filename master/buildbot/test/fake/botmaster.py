@@ -37,6 +37,13 @@ class FakeBotMaster(service.AsyncMultiService):
     def getLockFromLockAccess(self, access):
         return self.getLockByID(access.lockid)
 
+    def getBuildernames(self):
+        buildernames = []
+        for bldrlist in self.builders.itervalues():
+            for bldr in bldrlist:
+                buildernames.extend(bldr.name)
+        return buildernames
+
     def getBuildersForSlave(self, slavename):
         return self.builders.get(slavename, [])
 

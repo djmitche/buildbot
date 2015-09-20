@@ -337,7 +337,7 @@ class BuildRequestDistributor(service.AsyncMultiService):
         returns immediately, and promises to trigger those builders
         eventually.
 
-        @param new_builders: names of new builders that should be given the
+        @param new_builders: slugs of new builders that should be given the
         opportunity to check for new requests.
         """
         if not self.running:
@@ -350,7 +350,7 @@ class BuildRequestDistributor(service.AsyncMultiService):
         def remove(x):
             self._pendingMSBOCalls.remove(d)
             return x
-        d.addErrback(log.err, "while strting builds on %s" % (new_builders,))
+        d.addErrback(log.err, "while starting builds on %s" % (new_builders,))
 
     def _maybeStartBuildsOn(self, new_builders):
         new_builders = set(new_builders)
@@ -378,8 +378,7 @@ class BuildRequestDistributor(service.AsyncMultiService):
                 if not self.active:
                     self._activityLoop()
             except Exception:
-                log.err(Failure(),
-                        "while attempting to start builds on %s" % self.name)
+                log.err(Failure(), "while attempting to start builds")
 
         return self.pending_builders_lock.run(
             resetPendingBuildersList, new_builders)
@@ -416,16 +415,16 @@ class BuildRequestDistributor(service.AsyncMultiService):
         defer.returnValue(rv)
 
     @defer.inlineCallbacks
-    def _sortBuilders(self, buildernames):
+    def _sortBuilders(self, slugs):
         timer = metrics.Timer("BuildRequestDistributor._sortBuilders()")
         timer.start()
-        # note that this takes and returns a list of builder names
+        # note that this takes and returns a list of builder slugs
 
-        # convert builder names to builders
+        # convert builder slugs to builders
         builders_dict = self.botmaster.builders
-        builders = [builders_dict.get(n)
-                    for n in buildernames
-                    if n in builders_dict]
+        builders = [builders_dict.get(s)
+                    for s in slugs
+                    if s in builders_dict]
 
         # find a sorting function
         sorter = self.master.config.prioritizeBuilders

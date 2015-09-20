@@ -39,7 +39,6 @@ class BotMaster(service.ReconfigurableServiceMixin, service.AsyncMultiService):
         service.AsyncMultiService.__init__(self)
 
         self.builders = {}
-        self.builderNames = []
         # builders maps Builder names to instances of bb.p.builder.Builder,
         # which is the master-side object that defines and controls a build.
 
@@ -125,7 +124,7 @@ class BotMaster(service.ReconfigurableServiceMixin, service.AsyncMultiService):
                 if slavename in b.config.slavenames]
 
     def getBuildernames(self):
-        return self.builderNames
+        return [b.name for b in self.builders.itervalues()]
 
     def getBuilders(self):
         return list(itervalues(self.builders))
@@ -135,14 +134,14 @@ class BotMaster(service.ReconfigurableServiceMixin, service.AsyncMultiService):
         @defer.inlineCallbacks
         def buildRequestAdded(key, msg):
             builderid = msg['builderid']
-            buildername = None
-            # convert builderid to buildername
+            slug = None
+            # convert builderid to slug
             for builder in itervalues(self.builders):
                 if builderid == (yield builder.getBuilderId()):
-                    buildername = builder.name
+                    slug = builder.slug
                     break
-            if buildername:
-                self.maybeStartBuildsForBuilder(buildername)
+            if slug:
+                self.maybeStartBuildsForBuilder(slug)
 
         # consume both 'new' and 'unclaimed' build requests
         startConsuming = self.master.mq.startConsuming
@@ -178,45 +177,42 @@ class BotMaster(service.ReconfigurableServiceMixin, service.AsyncMultiService):
         timer = metrics.Timer("BotMaster.reconfigServiceBuilders")
         timer.start()
 
-        # arrange builders by name
-        old_by_name = dict([(b.name, b)
+        # arrange builders by slug
+        old_by_slug = dict([(b.slug, b)
                             for b in list(self)
                             if isinstance(b, Builder)])
-        old_set = set(old_by_name)
-        new_by_name = dict([(bc.name, bc)
+        old_set = set(old_by_slug)
+        new_by_slug = dict([(bc.slug, bc)
                             for bc in new_config.builders])
-        new_set = set(new_by_name)
+        new_set = set(new_by_slug)
 
-        # calculate new builders, by name, and removed builders
-        removed_names, added_names = util.diffSets(old_set, new_set)
+        # calculate new builders, by slug, and removed builders
+        removed_slugs, added_slugs = util.diffSets(old_set, new_set)
 
-        if removed_names or added_names:
+        if removed_slugs or added_slugs:
             log.msg("adding %d new builders, removing %d" %
-                    (len(added_names), len(removed_names)))
+                    (len(added_slugs), len(removed_slugs)))
 
-            for n in removed_names:
-                builder = old_by_name[n]
+            for slug in removed_slugs:
+                builder = old_by_slug[slug]
 
-                del self.builders[n]
+                del self.builders[slug]
                 builder.master = None
                 builder.botmaster = None
 
                 yield defer.maybeDeferred(lambda:
                                           builder.disownServiceParent())
 
-            for n in added_names:
-                builder = Builder(n)
-                self.builders[n] = builder
+            for slug in added_slugs:
+                builder = Builder(slug)
+                self.builders[slug] = builder
 
                 builder.botmaster = self
                 builder.master = self.master
                 yield builder.setServiceParent(self)
 
-        self.builderNames = list(self.builders)
-
         yield self.master.data.updates.updateBuilderList(
-            self.master.masterid,
-            [util.ascii2unicode(n) for n in self.builderNames])
+            self.master.masterid, self.builders.keys())
 
         metrics.MetricCountEvent.log("num_builders",
                                      len(self.builders), absolute=True)
@@ -257,14 +253,14 @@ class BotMaster(service.ReconfigurableServiceMixin, service.AsyncMultiService):
         lock = self.getLockByID(access.lockid)
         return lock
 
-    def maybeStartBuildsForBuilder(self, buildername):
+    def maybeStartBuildsForBuilder(self, slug):
         """
         Call this when something suggests that a particular builder may now
         be available to start a build.
 
-        @param buildername: the name of the builder
+        @param slug: the slug of the builder
         """
-        self.brd.maybeStartBuildsOn([buildername])
+        self.brd.maybeStartBuildsOn([slug])
 
     def maybeStartBuildsForSlave(self, buildslave_name):
         """
@@ -281,4 +277,4 @@ class BotMaster(service.ReconfigurableServiceMixin, service.AsyncMultiService):
         Call this when something suggests that this would be a good time to
         start some builds, but nothing more specific.
         """
-        self.brd.maybeStartBuildsOn(self.builderNames)
+        self.brd.maybeStartBuildsOn(self.builders.keys())

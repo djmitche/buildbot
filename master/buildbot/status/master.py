@@ -226,11 +226,11 @@ class Status(service.ReconfigurableServiceMixin, service.AsyncMultiService):
             tags = categories
 
         if tags is None:
-            return util.naturalSort(self.botmaster.builderNames)  # don't let them break it
+            return util.naturalSort(self.botmaster.getBuildernames())  # don't let them break it
 
         l = []
         # respect addition order
-        for name in self.botmaster.builderNames:
+        for name in self.botmaster.getBuildernames():
             bldr = self.getBuilder(name)
             if bldr.matchesAnyTag(tags):
                 l.append(name)
@@ -324,7 +324,7 @@ class Status(service.ReconfigurableServiceMixin, service.AsyncMultiService):
 
     def subscribe(self, target):
         self.watchers.append(target)
-        for name in self.botmaster.builderNames:
+        for name in self.botmaster.getBuildernames():
             self.announceNewBuilder(target, name, self.getBuilder(name))
 
     def unsubscribe(self, target):

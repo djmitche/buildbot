@@ -235,8 +235,8 @@ class FakeUpdates(service.AsyncService):
         self.builderSlugs = builderSlugs
         return defer.succeed(None)
 
-    def updateBuilderInfo(self, builderid, description, tags):
-        yield self.master.db.builders.updateBuilderInfo(builderid, description, tags)
+    def updateBuilderInfo(self, builderid, name, description, tags):
+        yield self.master.db.builders.updateBuilderInfo(builderid, name, description, tags)
 
     def masterDeactivated(self, masterid):
         return defer.succeed(None)

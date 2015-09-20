@@ -123,6 +123,7 @@ class TestBotMaster(unittest.TestCase):
         self.botmaster.startService()
 
     def tearDown(self):
+        self.botmaster.builders = {}
         return self.botmaster.stopService()
 
     def test_reconfigServiceWithBuildbotConfig(self):
@@ -154,7 +155,7 @@ class TestBotMaster(unittest.TestCase):
         bldr = self.botmaster.builders['bldr']
         self.assertIdentical(bldr.parent, self.botmaster)
         self.assertIdentical(bldr.master, self.master)
-        self.assertEqual(self.botmaster.builderNames, ['bldr'])
+        self.assertEqual(self.botmaster.builders.keys(), ['bldr'])
 
         self.new_config.builders = []
 
@@ -163,7 +164,6 @@ class TestBotMaster(unittest.TestCase):
         self.assertIdentical(bldr.parent, None)
         self.assertIdentical(bldr.master, None)
         self.assertEqual(self.botmaster.builders, {})
-        self.assertEqual(self.botmaster.builderNames, [])
 
     def test_maybeStartBuildsForBuilder(self):
         brd = self.botmaster.brd = mock.Mock()
@@ -187,7 +187,7 @@ class TestBotMaster(unittest.TestCase):
 
     def test_maybeStartBuildsForAll(self):
         brd = self.botmaster.brd = mock.Mock()
-        self.botmaster.builderNames = ['frank', 'larry']
+        self.botmaster.builders = {'frank': None, 'larry': None}
 
         self.botmaster.maybeStartBuildsForAllBuilders()
 

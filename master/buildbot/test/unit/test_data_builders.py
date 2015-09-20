@@ -157,7 +157,7 @@ class Builder(interfaces.InterfaceTests, unittest.TestCase):
 
     def test_signature_updateBuilderInfo(self):
         @self.assertArgSpecMatches(self.master.data.updates.updateBuilderInfo)
-        def updateBuilderInfo(self, builderid, description, tags):
+        def updateBuilderInfo(self, builderid, name, description, tags):
             pass
 
     def test_signature_updateBuilderList(self):
