@@ -17,6 +17,7 @@ import sqlalchemy as sa
 
 from buildbot.db import NULL
 from buildbot.db import base
+from buildbot.util import identifiers
 from twisted.internet import defer
 
 
@@ -28,15 +29,12 @@ class ChangeSourcesConnectorComponent(base.DBConnectorComponent):
     # Documentation is in developer/db.rst
 
     def findChangeSourceId(self, name):
+        assert identifiers.isIdentifier(50, name)
         tbl = self.db.model.changesources
-        name_hash = self.hashColumns(name)
         return self.findSomethingId(
             tbl=tbl,
-            whereclause=(tbl.c.name_hash == name_hash),
-            insert_values=dict(
-                name=name,
-                name_hash=name_hash,
-            ))
+            whereclause=(tbl.c.name == name),
+            insert_values=dict(name=name))
 
     def setChangeSourceMaster(self, changesourceid, masterid):
         def thd(conn):

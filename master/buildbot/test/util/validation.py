@@ -515,7 +515,7 @@ dbdict['chdict'] = DictValidator(
 
 dbdict['changesourcedict'] = DictValidator(
     id=IntValidator(),
-    name=StringValidator(),
+    name=IdentifierValidator(50),
     masterid=NoneOk(IntValidator()),
 )
 

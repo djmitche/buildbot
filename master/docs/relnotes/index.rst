@@ -27,6 +27,8 @@ Features
 
 * Scheduler names must be an identifier of no more than 50 characters; see :ref:`Identifier <type-identifier>`.
 
+* Change source names must be an identifier of no more than 50 characters; see :ref:`Identifier <type-identifier>`.
+
 Fixes
 ~~~~~
 

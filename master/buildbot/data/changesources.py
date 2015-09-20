@@ -82,7 +82,7 @@ class ChangeSource(base.ResourceType):
 
     class EntityType(types.Entity):
         changesourceid = types.Integer()
-        name = types.String()
+        name = types.Identifier(50)
         master = types.NoneOk(masters.Master.entityType)
     entityType = EntityType(name)
 

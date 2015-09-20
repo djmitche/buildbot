@@ -26,6 +26,9 @@ def upgrade(migrate_engine):
     schedulers = sa.Table('schedulers', metadata, autoload=True)
     schedulers.drop()
 
+    changesources = sa.Table('changesources', metadata, autoload=True)
+    changesources.drop()
+
     # regenerate metadata
     metadata = sa.MetaData()
     metadata.bind = migrate_engine
@@ -51,3 +54,13 @@ def upgrade(migrate_engine):
 
     idx = sa.Index('scheduler_name', schedulers.c.name, unique=True)
     idx.create(migrate_engine)
+
+    changesources = sa.Table(
+            'changesources', metadata,
+                             sa.Column("id", sa.Integer, primary_key=True),
+                             sa.Column('name', sa.Text, nullable=False),
+                             )
+    changesources.create()
+
+    idx = sa.Index('changesource_name', changesources.c.name, unique=True)
+    idx.create()

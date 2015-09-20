@@ -37,7 +37,7 @@ class TestChangeSource(changesource.ChangeSourceMixin, unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_activation(self):
-        cs = self.Subclass(name="DummyCS")
+        cs = self.Subclass(name=u"DummyCS")
         cs.activate = mock.Mock(return_value=defer.succeed(None))
         cs.deactivate = mock.Mock(return_value=defer.succeed(None))
 
@@ -86,7 +86,7 @@ class TestPollingChangeSource(changesource.ChangeSourceMixin, unittest.TestCase)
 
         @d.addCallback
         def create_changesource(_):
-            self.attachChangeSource(self.Subclass(name="DummyCS"))
+            self.attachChangeSource(self.Subclass(name=u"DummyCS"))
         return d
 
     def tearDown(self):

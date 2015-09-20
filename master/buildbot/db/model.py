@@ -221,11 +221,7 @@ class Model(base.DBConnectorComponent):
     # changesource
     changesources = sa.Table('changesources', metadata,
                              sa.Column("id", sa.Integer, primary_key=True),
-
-                             # name for this changesource, as given in the configuration, plus a hash
-                             # of that name used for a unique index
                              sa.Column('name', sa.Text, nullable=False),
-                             sa.Column('name_hash', sa.String(40), nullable=False),
                              )
 
     # This links changesources to the master where they are running.  A changesource
@@ -592,7 +588,7 @@ class Model(base.DBConnectorComponent):
     sa.Index('change_files_changeid', change_files.c.changeid)
     sa.Index('change_properties_changeid', change_properties.c.changeid)
     sa.Index('changes_sourcestampid', changes.c.sourcestampid)
-    sa.Index('changesource_name_hash', changesources.c.name_hash, unique=True)
+    sa.Index('changesource_name', changesources.c.name, unique=True)
     sa.Index('scheduler_name', schedulers.c.name, unique=True)
     sa.Index('scheduler_changes_schedulerid', scheduler_changes.c.schedulerid)
     sa.Index('scheduler_changes_changeid', scheduler_changes.c.changeid)

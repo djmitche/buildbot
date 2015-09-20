@@ -47,15 +47,15 @@ class Tests(interfaces.InterfaceTests):
     @defer.inlineCallbacks
     def test_findChangeSourceId_new(self):
         """findChangeSourceId for a new changesource creates it"""
-        id = yield self.db.changesources.findChangeSourceId('csname')
+        id = yield self.db.changesources.findChangeSourceId(u'csname')
         cs = yield self.db.changesources.getChangeSource(id)
         self.assertEqual(cs['name'], 'csname')
 
     @defer.inlineCallbacks
     def test_findChangeSourceId_existing(self):
         """findChangeSourceId gives the same answer for the same inputs"""
-        id1 = yield self.db.changesources.findChangeSourceId('csname')
-        id2 = yield self.db.changesources.findChangeSourceId('csname')
+        id1 = yield self.db.changesources.findChangeSourceId(u'csname')
+        id2 = yield self.db.changesources.findChangeSourceId(u'csname')
         self.assertEqual(id1, id2)
 
     def test_signature_setChangeSourceMaster(self):

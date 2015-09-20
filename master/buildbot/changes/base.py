@@ -17,13 +17,21 @@ from twisted.internet import defer
 from twisted.python import log
 from zope.interface import implements
 
+from buildbot import config
 from buildbot.interfaces import IChangeSource
+from buildbot.util import identifiers
 from buildbot.util import service
 from buildbot.util.poll import method as poll_method
 
 
 class ChangeSource(service.ClusteredBuildbotService):
     implements(IChangeSource)
+
+    def __init__(self, name):
+        if not identifiers.isIdentifier(50, name):
+            config.error("Change source name {0!r} is not a 50-character "
+                         "identifier".format(name))
+        super(ChangeSource, self).__init__(name=name)
 
     def describe(self):
         pass
