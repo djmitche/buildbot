@@ -41,8 +41,8 @@ class Tests(interfaces.InterfaceTests):
         # set up a sourcestamp with id 234 for use below
         return self.insertTestData([
             fakedb.SourceStamp(id=234),
-            fakedb.Builder(id=1, name='bldr1'),
-            fakedb.Builder(id=2, name='bldr2'),
+            fakedb.Builder(id=1, name='bldr1', slug='bldr1'),
+            fakedb.Builder(id=2, name='bldr2', slug='bldr2'),
         ])
 
     def test_signature_addBuildset(self):

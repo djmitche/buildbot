@@ -1450,23 +1450,34 @@ builders
 
 .. py:class:: BuildersConnectorComponent
 
-    This class handles the relationship between builder names and their IDs, as well as tracking which masters are configured for this builder.
+    This class handles the relationship between builder names, slugs, and IDs, as well as tracking which masters are configured for this builder.
+
+    Each builder has a "slug" which is safe for use in URLs -- a 20-character identifier.
+    The builder's name is a free-form unicode string, and can be changed without losing history.
 
     Builders are represented by master dictionaries with the following keys:
 
     * ``id`` -- the ID of this builder
-    * ``name``  -- the builder name, a 20-character :ref:`identifier <type-identifier>`
+    * ``name`` -- the name of the builder
+    * ``slug`` -- the slug for the builder (20-character :ref:`identifier <type-identifier>`)
     * ``masterids`` -- the IDs of the masters where this builder is configured (sorted by id)
 
-    .. py:method:: findBuilderId(name)
+    .. py:method:: findBuilderId(slug)
 
-        :param name: name of this builder
-        :type name: 20-character :ref:`identifier <type-identifier>`
+        :param slug: slug for the builder
+        :type slug: 20-character :ref:`identifier <type-identifier>`
         :returns: builder id via Deferred
 
-        Return the builder ID for the builder with this builder name.
+        Return the builder ID for the builder with this slug.
         If such a builder is already in the database, this returns the ID.
-        If not, the builder is added to the database.
+        If not, the builder is added to the database with its name equal to the slug, and an empty description.
+
+    .. py:method:: updateBuilderInfo(builderid, name, description, tags)
+
+        :param integer builderid: the builder ID
+        :param unicode name: the new builder name
+        :param unicode description: the new builder description
+        :param [unicode] tags; the new builder tags
 
     .. py:method:: addBuilderMaster(builderid=None, masterid=None)
 

@@ -55,9 +55,9 @@ class Tests(interfaces.InterfaceTests):
             fakedb.Master(id=self.MASTER_ID, name="fake master"),
             fakedb.Master(id=self.OTHER_MASTER_ID, name="other"),
             fakedb.Buildset(id=self.BSID),
-            fakedb.Builder(id=self.BLDRID1, name="builder1"),
-            fakedb.Builder(id=self.BLDRID2, name="builder2"),
-            fakedb.Builder(id=self.BLDRID3, name="builder3"),
+            fakedb.Builder(id=self.BLDRID1, name="builder1", slug='b1'),
+            fakedb.Builder(id=self.BLDRID2, name="builder2", slug='b2'),
+            fakedb.Builder(id=self.BLDRID3, name="builder3", slug='b3'),
             fakedb.BuildsetSourceStamp(buildsetid=self.BSID,
                                        sourcestampid=234),
         ])

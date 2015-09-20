@@ -51,10 +51,27 @@ All update methods are available as attributes of ``master.data.updates``.
 
 .. py:class:: buildbot.data.changes.BuilderResourceType
 
-    .. py:method:: updateBuilderList(masterid, builderNames)
+    .. py:method:: findBuilderId(slug)
+
+        :param slug: slug for the builder
+        :type slug: 20-character :ref:`identifier <type-identifier>`
+        :returns: builder id via Deferred
+
+        Return the builder ID for the builder with this slug.
+        If such a builder is already in the database, this returns the ID.
+        If not, the builder is added to the database with its name equal to the slug, and an empty description.
+
+    .. py:method:: updateBuilderInfo(builderid, name, description, tags)
+
+        :param integer builderid: the builder ID
+        :param unicode name: the new builder name
+        :param unicode description: the new builder description
+        :param [unicode] tags; the new builder tags
+
+    .. py:method:: updateBuilderList(masterid, builderSlugs)
 
         :param integer masterid: this master's master ID
-        :param list builderNames: list of names of currently-configured builders (unicode strings)
+        :param list builderSlugs list of slugs of currently-configured builders (identifiers)
         :returns: Deferred
 
         Record the given builders as the currently-configured set of builders on this master.

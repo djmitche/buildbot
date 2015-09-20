@@ -466,7 +466,7 @@ class Model(base.DBConnectorComponent):
                         # builder's description
                         sa.Column('description', sa.Text, nullable=True),
                         # sha1 of name; used for a unique index
-                        sa.Column('name_hash', sa.String(40), nullable=False),
+                        sa.Column('slug', sa.String(20), nullable=False),
                         )
 
     # This links builders to the master where they are running.  A builder
@@ -602,7 +602,7 @@ class Model(base.DBConnectorComponent):
     sa.Index('scheduler_changes_changeid', scheduler_changes.c.changeid)
     sa.Index('scheduler_changes_unique', scheduler_changes.c.schedulerid,
              scheduler_changes.c.changeid, unique=True)
-    sa.Index('builder_name_hash', builders.c.name_hash, unique=True)
+    sa.Index('builder_slug', builders.c.slug, unique=True)
     sa.Index('builder_masters_builderid', builder_masters.c.builderid)
     sa.Index('builder_masters_masterid', builder_masters.c.masterid)
     sa.Index('builder_masters_identity',

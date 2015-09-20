@@ -382,6 +382,7 @@ dbdict['builderdict'] = DictValidator(
     id=IntValidator(),
     masterids=ListValidator(IntValidator()),
     name=StringValidator(),
+    slug=IdentifierValidator(20),
     description=NoneOk(StringValidator()),
     tags=ListValidator(StringValidator()),
 )

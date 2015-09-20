@@ -30,6 +30,7 @@ from buildbot.db import changesources
 from buildbot.db import schedulers
 from buildbot.test.util import validation
 from buildbot.util import datetime2epoch
+from buildbot.util import identifiers
 from buildbot.util import json
 from buildbot.util import service
 
@@ -550,12 +551,11 @@ class Builder(Row):
     defaults = dict(
         id=None,
         name='some:builder',
-        name_hash=None,
+        slug='some_builder',
         description=None,
     )
 
     id_column = 'id'
-    hashedColumns = [('name_hash', ('name',))]
 
 
 class BuilderMaster(Row):
@@ -2275,6 +2275,7 @@ class FakeBuildersComponent(FakeDBComponent):
                 self.builders[row.id] = dict(
                     id=row.id,
                     name=row.name,
+                    slug=row.slug,
                     description=row.description)
             if isinstance(row, BuilderMaster):
                 self.builder_masters[row.id] = \
@@ -2284,14 +2285,16 @@ class FakeBuildersComponent(FakeDBComponent):
                 self.builders_tags.setdefault(row.builderid,
                                               []).append(row.tagid)
 
-    def findBuilderId(self, name, _reactor=reactor):
+    def findBuilderId(self, slug, _reactor=reactor):
+        assert identifiers.isIdentifier(20, slug)
         for m in itervalues(self.builders):
-            if m['name'] == name:
+            if m['slug'] == slug:
                 return defer.succeed(m['id'])
         id = len(self.builders) + 1
         self.builders[id] = dict(
             id=id,
-            name=name,
+            name=slug,
+            slug=slug,
             description=None,
             tags=[])
         return defer.succeed(id)
@@ -2340,10 +2343,11 @@ class FakeBuildersComponent(FakeDBComponent):
         ])
 
     @defer.inlineCallbacks
-    def updateBuilderInfo(self, builderid, description, tags):
+    def updateBuilderInfo(self, builderid, name, description, tags):
         if builderid in self.builders:
             tags = tags if tags else []
             self.builders[builderid]['description'] = description
+            self.builders[builderid]['name'] = name
 
             # add tags
             tagids = []

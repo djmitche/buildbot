@@ -30,9 +30,9 @@ class Tests(interfaces.InterfaceTests):
     baseRows = [
         fakedb.Master(id=10, name='m10'),
         fakedb.Master(id=11, name='m11'),
-        fakedb.Builder(id=20, name=u'a'),
-        fakedb.Builder(id=21, name=u'b'),
-        fakedb.Builder(id=22, name=u'c'),
+        fakedb.Builder(id=20, name=u'a', slug=u'a'),
+        fakedb.Builder(id=21, name=u'b', slug=u'b'),
+        fakedb.Builder(id=22, name=u'c', slug=u'c'),
         fakedb.Buildslave(id=30, name='zero'),
         fakedb.Buildslave(id=31, name='one'),
     ]

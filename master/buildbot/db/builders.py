@@ -17,22 +17,24 @@ import sqlalchemy as sa
 
 from buildbot.db import base
 from twisted.internet import defer
+from buildbot.util import identifiers
 
 
 class BuildersConnectorComponent(base.DBConnectorComponent):
 
-    def findBuilderId(self, name):
+    def findBuilderId(self, slug):
+        assert identifiers.isIdentifier(20, slug)
         tbl = self.db.model.builders
         return self.findSomethingId(
             tbl=tbl,
-            whereclause=(tbl.c.name == name),
+            whereclause=(tbl.c.slug == slug),
             insert_values=dict(
-                name=name,
-                name_hash=self.hashColumns(name),
+                name=slug,
+                slug=slug,
             ))
 
     @defer.inlineCallbacks
-    def updateBuilderInfo(self, builderid, description, tags):
+    def updateBuilderInfo(self, builderid, name, description, tags):
         # convert to tag IDs first, as necessary
         def toTagid(tag):
             if isinstance(tag, type(1)):
@@ -52,7 +54,7 @@ class BuildersConnectorComponent(base.DBConnectorComponent):
             transaction = conn.begin()
 
             q = builders_tbl.update(whereclause=(builders_tbl.c.id == builderid))
-            conn.execute(q, description=description)
+            conn.execute(q, description=description, name=name)
             # remove previous builders_tags
             conn.execute(builders_tags_tbl.delete(
                 whereclause=((builders_tags_tbl.c.builderid == builderid))))
@@ -109,7 +111,10 @@ class BuildersConnectorComponent(base.DBConnectorComponent):
                 j = j.join(limiting_bm_tbl,
                            onclause=(bldr_tbl.c.id == limiting_bm_tbl.c.builderid))
             q = sa.select(
-                [bldr_tbl.c.id, bldr_tbl.c.name, bldr_tbl.c.description, bm_tbl.c.masterid],
+                [
+                    bldr_tbl.c.id, bldr_tbl.c.name, bldr_tbl.c.description,
+                    bldr_tbl.c.slug, bm_tbl.c.masterid,
+                ],
                 from_obj=[j],
                 order_by=[bldr_tbl.c.id, bm_tbl.c.masterid])
             if masterid is not None:
@@ -142,6 +147,6 @@ class BuildersConnectorComponent(base.DBConnectorComponent):
         tags = [r.name for r in
                 conn.execute(q).fetchall()]
 
-        return dict(id=row.id, name=row.name, masterids=[],
+        return dict(id=row.id, name=row.name, slug=row.slug, masterids=[],
                     description=row.description,
                     tags=tags)
