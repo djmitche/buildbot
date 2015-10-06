@@ -273,6 +273,11 @@ class SVN(Source):
             defer.returnValue(False)
             return
 
+        # svn: E155004: Working copy ... locked.
+        if 'E155004:' in stderr:
+            defer.returnValue(False)
+            return
+
         try:
             stdout_xml = xml.dom.minidom.parseString(stdout)
             extractedurl = stdout_xml.getElementsByTagName('url')[0].firstChild.nodeValue
