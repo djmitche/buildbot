@@ -3,3 +3,4 @@ TO DO
 
 * write a "real" migration (the ID's are important for most of these)
 * fix up tests
+* verify ascii names are still allowed in configs
