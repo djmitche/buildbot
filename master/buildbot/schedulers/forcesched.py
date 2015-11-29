@@ -605,13 +605,7 @@ class ForceScheduler(base.BaseScheduler):
         @type properties: list of BaseParameter's
         """
 
-        if not self.checkIfType(name, str):
-            config.error("ForceScheduler name must be a unicode string: %r" %
-                         name)
-
-        if not name:
-            config.error("ForceScheduler name must not be empty: %r " %
-                         name)
+        # BaseScheduler will check the 'name' parameter
 
         if not self.checkIfListOfType(builderNames, str):
             config.error("ForceScheduler '%s': builderNames must be a list of strings: %r" %

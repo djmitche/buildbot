@@ -36,6 +36,7 @@ class NightlyBase(scheduler.SchedulerMixin, unittest.TestCase):
         self.setUpScheduler()
 
     def makeScheduler(self, firstBuildDuration=0, **kwargs):
+        kwargs['name'] = unicode(kwargs['name'])
         return self.attachScheduler(timed.NightlyBase(**kwargs),
                                     self.OBJECTID)
 

@@ -27,7 +27,7 @@ from twisted.trial import unittest
 class CommonStuffMixin(object):
 
     def makeScheduler(self, klass, **kwargs_override):
-        kwargs = dict(name="tsched", treeStableTimer=60,
+        kwargs = dict(name=u"tsched", treeStableTimer=60,
                       builderNames=['tbuild'])
         kwargs.update(kwargs_override)
 
@@ -299,6 +299,7 @@ class SingleBranchScheduler(CommonStuffMixin,
 
     def makeFullScheduler(self, **kwargs):
         self.master.db.insertTestData([fakedb.Builder(name=builderName) for builderName in kwargs['builderNames']])
+        kwargs['name'] = unicode(kwargs['name'])
         sched = self.attachScheduler(basic.SingleBranchScheduler(**kwargs),
                                      self.SCHEDULERID,
                                      overrideBuildsetMethods=True)
@@ -355,7 +356,7 @@ class SingleBranchScheduler(CommonStuffMixin,
 
     def test_constructor_no_branch_but_filter(self):
         # this shouldn't fail
-        basic.SingleBranchScheduler(name="tsched", treeStableTimer=60,
+        basic.SingleBranchScheduler(name=u"tsched", treeStableTimer=60,
                                     builderNames=['a', 'b'], change_filter=mock.Mock())
 
     def test_constructor_branches_forbidden(self):

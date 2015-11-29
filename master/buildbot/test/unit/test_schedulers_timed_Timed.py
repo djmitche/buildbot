@@ -41,6 +41,7 @@ class Timed(scheduler.SchedulerMixin, unittest.TestCase):
             return defer.succeed(None)
 
     def makeScheduler(self, firstBuildDuration=0, **kwargs):
+        kwargs['name'] = unicode(kwargs['name'])
         sched = self.attachScheduler(self.Subclass(**kwargs), self.OBJECTID)
         self.clock = sched._reactor = task.Clock()
         return sched

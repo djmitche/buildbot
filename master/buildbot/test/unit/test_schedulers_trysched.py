@@ -650,6 +650,7 @@ class Try_Userpass_Perspective(scheduler.SchedulerMixin, unittest.TestCase):
         self.tearDownScheduler()
 
     def makeScheduler(self, **kwargs):
+        kwargs['name'] = unicode(kwargs['name'])
         sched = self.attachScheduler(trysched.Try_Userpass(**kwargs),
                                      self.OBJECTID,
                                      overrideBuildsetMethods=True,
@@ -660,7 +661,7 @@ class Try_Userpass_Perspective(scheduler.SchedulerMixin, unittest.TestCase):
         return sched
 
     def call_perspective_try(self, *args, **kwargs):
-        sched = self.makeScheduler(name=u'tsched', builderNames=['a', 'b'],
+        sched = self.makeScheduler(name='tsched', builderNames=['a', 'b'],
                                    port='xxx', userpass=[('a', 'b')], properties=dict(frm='schd'))
         persp = trysched.Try_Userpass_Perspective(sched, 'a')
 
@@ -747,7 +748,7 @@ class Try_Userpass_Perspective(scheduler.SchedulerMixin, unittest.TestCase):
         return d
 
     def test_getAvailableBuilderNames(self):
-        sched = self.makeScheduler(name=u'tsched', builderNames=['a', 'b'],
+        sched = self.makeScheduler(name='tsched', builderNames=['a', 'b'],
                                    port='xxx', userpass=[('a', 'b')])
         persp = trysched.Try_Userpass_Perspective(sched, 'a')
         d = defer.maybeDeferred(persp.perspective_getAvailableBuilderNames)
@@ -769,12 +770,13 @@ class Try_Userpass(scheduler.SchedulerMixin, unittest.TestCase):
         self.tearDownScheduler()
 
     def makeScheduler(self, **kwargs):
+        kwargs['name'] = unicode(kwargs['name'])
         sched = self.attachScheduler(trysched.Try_Userpass(**kwargs),
                                      self.OBJECTID)
         return sched
 
     def test_service(self):
-        sched = self.makeScheduler(name=u'tsched', builderNames=['a'],
+        sched = self.makeScheduler(name='tsched', builderNames=['a'],
                                    port='tcp:9999', userpass=[('fred', 'derf')])
         # patch out the pbmanager's 'register' command both to be sure
         # the registration is correct and to get a copy of the factory
@@ -798,7 +800,7 @@ class Try_Userpass(scheduler.SchedulerMixin, unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_service_but_not_active(self):
-        sched = self.makeScheduler(name=u'tsched', builderNames=['a'],
+        sched = self.makeScheduler(name='tsched', builderNames=['a'],
                                    port='tcp:9999', userpass=[('fred', 'derf')])
 
         self.setSchedulerToMaster(self.OTHER_MASTER_ID)

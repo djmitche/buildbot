@@ -84,7 +84,7 @@ class SchedulerManager(unittest.TestCase):
         pass
 
     def makeSched(self, cls, name, attr='alpha'):
-        sch = cls(name=name, builderNames=['x'], properties={})
+        sch = cls(name=unicode(name), builderNames=['x'], properties={})
         sch.attr = attr
         return sch
 

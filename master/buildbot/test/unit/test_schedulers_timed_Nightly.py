@@ -37,6 +37,7 @@ class Nightly(scheduler.SchedulerMixin, unittest.TestCase):
     localtime_offset = time.timezone % 3600
 
     def makeScheduler(self, **kwargs):
+        kwargs['name'] = unicode(kwargs['name'])
         sched = self.attachScheduler(timed.Nightly(**kwargs),
                                      self.OBJECTID, overrideBuildsetMethods=True)
 

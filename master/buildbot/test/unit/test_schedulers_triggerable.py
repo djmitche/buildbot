@@ -58,7 +58,7 @@ class Triggerable(scheduler.SchedulerMixin, unittest.TestCase):
         self.master.db.insertTestData([fakedb.Builder(id=77, name='b')])
 
         sched = self.attachScheduler(
-            triggerable.Triggerable(name='n', builderNames=['b'], **kwargs),
+            triggerable.Triggerable(name=u'n', builderNames=['b'], **kwargs),
             self.OBJECTID, overrideBuildsetMethods=overrideBuildsetMethods)
         sched._updateWaiters._reactor = self.clock
 

@@ -47,7 +47,7 @@ class Dependent(scheduler.SchedulerMixin, unittest.TestCase):
         if not upstream:
             upstream = Upstream(UPSTREAM_NAME)
 
-        sched = dependent.Dependent(name='n', builderNames=['b'],
+        sched = dependent.Dependent(name=u'n', builderNames=['b'],
                                     upstream=upstream)
         self.attachScheduler(sched, OBJECTID,
                              overrideBuildsetMethods=True,

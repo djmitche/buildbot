@@ -26,6 +26,7 @@ class NightlyTriggerable(scheduler.SchedulerMixin, unittest.TestCase):
     SCHEDULERID = 1327
 
     def makeScheduler(self, firstBuildDuration=0, **kwargs):
+        kwargs['name'] = unicode(kwargs['name'])
         sched = self.attachScheduler(timed.NightlyTriggerable(**kwargs),
                                      self.SCHEDULERID,
                                      overrideBuildsetMethods=True,
