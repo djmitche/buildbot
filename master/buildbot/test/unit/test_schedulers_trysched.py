@@ -33,17 +33,17 @@ class TryBase(unittest.TestCase):
 
     def test_filterBuilderList_ok(self):
         sched = trysched.TryBase(
-            name='tsched', builderNames=['a', 'b', 'c'], properties={})
+            name=u'tsched', builderNames=['a', 'b', 'c'], properties={})
         self.assertEqual(sched.filterBuilderList(['b', 'c']), ['b', 'c'])
 
     def test_filterBuilderList_bad(self):
         sched = trysched.TryBase(
-            name='tsched', builderNames=['a', 'b'], properties={})
+            name=u'tsched', builderNames=['a', 'b'], properties={})
         self.assertEqual(sched.filterBuilderList(['b', 'c']), [])
 
     def test_filterBuilderList_empty(self):
         sched = trysched.TryBase(
-            name='tsched', builderNames=['a', 'b'], properties={})
+            name=u'tsched', builderNames=['a', 'b'], properties={})
         self.assertEqual(sched.filterBuilderList([]), ['a', 'b'])
 
 
@@ -102,7 +102,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
         os.mkdir(self.jobdir)
 
         # build scheduler
-        kwargs = dict(name="tsched", builderNames=['a'], jobdir=self.jobdir)
+        kwargs = dict(name=u"tsched", builderNames=['a'], jobdir=self.jobdir)
         sched = self.attachScheduler(
             trysched.Try_Jobdir(**kwargs), self.OBJECTID,
             overrideBuildsetMethods=True)
@@ -168,13 +168,13 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_empty(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['a'], jobdir='foo')
+            name=u'tsched', builderNames=['a'], jobdir='foo')
         self.assertRaises(
             trysched.BadJobfile, sched.parseJob, StringIO.StringIO(''))
 
     def test_parseJob_longer_than_netstring_MAXLENGTH(self):
         self.patch(basic.NetstringReceiver, 'MAX_LENGTH', 100)
-        sched = trysched.Try_Jobdir(name='tsched', builderNames=['a'], jobdir='foo')
+        sched = trysched.Try_Jobdir(name=u'tsched', builderNames=['a'], jobdir='foo')
         jobstr = self.makeNetstring(
             '1', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'buildera', 'builderc'
@@ -188,14 +188,14 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_invalid(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['a'], jobdir='foo')
+            name=u'tsched', builderNames=['a'], jobdir='foo')
         self.assertRaises(
             trysched.BadJobfile, sched.parseJob,
             StringIO.StringIO('this is not a netstring'))
 
     def test_parseJob_invalid_version(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['a'], jobdir='foo')
+            name=u'tsched', builderNames=['a'], jobdir='foo')
         self.assertRaises(
             trysched.BadJobfile, sched.parseJob, StringIO.StringIO('1:9,'))
 
@@ -204,7 +204,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v1(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '1', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'buildera', 'builderc'
@@ -226,7 +226,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v1_empty_branch_rev(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             # blank branch, rev are turned to None
             '1', 'extid', '', '', '1', 'this is my diff, -- ++, etc.',
@@ -238,7 +238,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v1_no_builders(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '1', 'extid', '', '', '1', 'this is my diff, -- ++, etc.'
         )
@@ -247,7 +247,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v1_no_properties(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '1', 'extid', '', '', '1', 'this is my diff, -- ++, etc.'
         )
@@ -256,7 +256,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v2(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '2', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj',
@@ -279,7 +279,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v2_empty_branch_rev(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             # blank branch, rev are turned to None
             '2', 'extid', '', '', '1', 'this is my diff, -- ++, etc.',
@@ -292,7 +292,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v2_no_builders(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '2', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj',
@@ -302,7 +302,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v2_no_properties(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '2', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj',
@@ -312,7 +312,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v3(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '3', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj', 'who',
@@ -335,7 +335,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v3_empty_branch_rev(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             # blank branch, rev are turned to None
             '3', 'extid', '', '', '1', 'this is my diff, -- ++, etc.',
@@ -348,7 +348,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v3_no_builders(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '3', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj', 'who'
@@ -358,7 +358,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v3_no_properties(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '3', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj', 'who'
@@ -368,7 +368,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v4(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '4', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj', 'who', 'comment',
@@ -391,7 +391,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v4_empty_branch_rev(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             # blank branch, rev are turned to None
             '4', 'extid', '', '', '1', 'this is my diff, -- ++, etc.',
@@ -404,7 +404,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v4_no_builders(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '4', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj', 'who', 'comment'
@@ -414,7 +414,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v4_no_properties(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '4', 'extid', 'trunk', '1234', '1', 'this is my diff, -- ++, etc.',
             'repo', 'proj', 'who', 'comment'
@@ -424,7 +424,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v5(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '5',
             json.dumps({
@@ -451,7 +451,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v5_empty_branch_rev(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             # blank branch, rev are turned to None
             '4', 'extid', '', '', '1', 'this is my diff, -- ++, etc.',
@@ -464,7 +464,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v5_no_builders(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '5',
             json.dumps({
@@ -479,7 +479,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v5_no_properties(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring(
             '5',
             json.dumps({
@@ -494,7 +494,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
 
     def test_parseJob_v5_invalid_json(self):
         sched = trysched.Try_Jobdir(
-            name='tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
+            name=u'tsched', builderNames=['buildera', 'builderb'], jobdir='foo')
         jobstr = self.makeNetstring('5', '{"comment": "com}')
         self.assertRaises(
             trysched.BadJobfile, sched.parseJob, StringIO.StringIO(jobstr))
@@ -504,7 +504,7 @@ class Try_Jobdir(scheduler.SchedulerMixin, unittest.TestCase):
     def call_handleJobFile(self, parseJob):
         sched = self.attachScheduler(
             trysched.Try_Jobdir(
-                name='tsched', builderNames=['buildera', 'builderb'],
+                name=u'tsched', builderNames=['buildera', 'builderb'],
                 jobdir='foo'), self.OBJECTID,
             overrideBuildsetMethods=True,
             createBuilderDB=True)
@@ -660,7 +660,7 @@ class Try_Userpass_Perspective(scheduler.SchedulerMixin, unittest.TestCase):
         return sched
 
     def call_perspective_try(self, *args, **kwargs):
-        sched = self.makeScheduler(name='tsched', builderNames=['a', 'b'],
+        sched = self.makeScheduler(name=u'tsched', builderNames=['a', 'b'],
                                    port='xxx', userpass=[('a', 'b')], properties=dict(frm='schd'))
         persp = trysched.Try_Userpass_Perspective(sched, 'a')
 
@@ -747,7 +747,7 @@ class Try_Userpass_Perspective(scheduler.SchedulerMixin, unittest.TestCase):
         return d
 
     def test_getAvailableBuilderNames(self):
-        sched = self.makeScheduler(name='tsched', builderNames=['a', 'b'],
+        sched = self.makeScheduler(name=u'tsched', builderNames=['a', 'b'],
                                    port='xxx', userpass=[('a', 'b')])
         persp = trysched.Try_Userpass_Perspective(sched, 'a')
         d = defer.maybeDeferred(persp.perspective_getAvailableBuilderNames)
@@ -774,7 +774,7 @@ class Try_Userpass(scheduler.SchedulerMixin, unittest.TestCase):
         return sched
 
     def test_service(self):
-        sched = self.makeScheduler(name='tsched', builderNames=['a'],
+        sched = self.makeScheduler(name=u'tsched', builderNames=['a'],
                                    port='tcp:9999', userpass=[('fred', 'derf')])
         # patch out the pbmanager's 'register' command both to be sure
         # the registration is correct and to get a copy of the factory
@@ -798,7 +798,7 @@ class Try_Userpass(scheduler.SchedulerMixin, unittest.TestCase):
 
     @defer.inlineCallbacks
     def test_service_but_not_active(self):
-        sched = self.makeScheduler(name='tsched', builderNames=['a'],
+        sched = self.makeScheduler(name=u'tsched', builderNames=['a'],
                                    port='tcp:9999', userpass=[('fred', 'derf')])
 
         self.setSchedulerToMaster(self.OTHER_MASTER_ID)
